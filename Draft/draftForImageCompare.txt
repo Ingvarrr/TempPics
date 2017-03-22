@@ -1,0 +1,80 @@
+try{
+            BufferedImage startPic = ImageIO.read(new File
+                    ("/home/vig/ProgDocs/PicsProg/image1.png"));
+            BufferedImage modifiedPic = ImageIO.read(new File
+                    ("/home/vig/ProgDocs/PicsProg/image2.png"));
+
+            if (startPic.getHeight() == modifiedPic.getHeight() &&
+                    startPic.getWidth() == modifiedPic.getWidth()) {
+
+                ArrayList<Point> listOfDiffPixels = new ArrayList<>();
+                for (int i = 0; i < startPic.getWidth(); i++) {
+                    for (int j = 0; j < startPic.getHeight(); j++) {
+                        Color startPicPixelColor = new Color(startPic.getRGB(i,j));
+                        Color modPicPixelColor = new Color(modifiedPic.getRGB(i,j));
+                        int difference = 0;
+                        difference += Math.abs(startPicPixelColor.getRed() - modPicPixelColor.getRed());
+                        difference += Math.abs(startPicPixelColor.getGreen() - modPicPixelColor.getGreen());
+                        difference += Math.abs(startPicPixelColor.getBlue() - modPicPixelColor.getBlue());
+                        difference += Math.abs(startPicPixelColor.getAlpha() - modPicPixelColor.getAlpha());
+
+                        if (((double)difference*100)/1020 > 10.0){
+                            listOfDiffPixels.add(new Point(i,j));
+                        }
+                    }
+                }
+                int diffPixelsNumber = listOfDiffPixels.size();
+                double percentageOfDiffPixels = ((double) diffPixelsNumber*100)/
+                        (startPic.getWidth()*startPic.getHeight());
+                int horizontalQuartersQuantity = 45;
+                int verticalQuarterQuantity = 23;
+                int quarterX = (startPic.getWidth()/horizontalQuartersQuantity);
+                int quarterY = (startPic.getHeight()/verticalQuarterQuantity);
+                for (int i = 0; i < horizontalQuartersQuantity; i++) {
+                    for (int j = 0; j < verticalQuarterQuantity; j++) {
+                        BufferedImage startPicQuarter = startPic.getSubimage(
+                                i*quarterX,j*quarterY,quarterX - 1,quarterY - 1);
+                        BufferedImage modifiedPicQuarter = modifiedPic.getSubimage(
+                                i*quarterX,j*quarterY,quarterX - 1,quarterY - 1);
+                        int difference = 0;
+                        for (int k = 0; k < quarterX - 1; k++) {
+                            for (int l = 0; l < quarterY - 1; l++) {
+                                Color startPicQuarterPixelColor = new Color(startPicQuarter.getRGB(k,l));
+                                Color modPicQuarterPixelColor = new Color(modifiedPicQuarter.getRGB(k,l));
+                                difference += Math.abs(startPicQuarterPixelColor.getRed()
+                                        - modPicQuarterPixelColor.getRed());
+                                difference += Math.abs(startPicQuarterPixelColor.getGreen()
+                                        - modPicQuarterPixelColor.getGreen());
+                                difference += Math.abs(startPicQuarterPixelColor.getBlue()
+                                        - modPicQuarterPixelColor.getBlue());
+                                difference += Math.abs(startPicQuarterPixelColor.getAlpha()
+                                        - modPicQuarterPixelColor.getAlpha());
+                            }
+                        }
+                        if ((double)difference*100/1020 > percentageOfDiffPixels){
+                            Graphics2D redRectangle = modifiedPic.createGraphics();
+                            redRectangle.setColor(new Color(255,0,0,128));
+                            redRectangle.drawRect(i*quarterX,j*quarterY,quarterX - 1,quarterY - 1);
+                        }
+                    }
+                }
+
+                /*modifiedPic.createGraphics().draw(new Rectangle(
+                        listOfDiffPixels.get(0).x,listOfDiffPixels.get(0).y,
+                        listOfDiffPixels.get(listOfDiffPixels.size() - 1).x,
+                        listOfDiffPixels.get(listOfDiffPixels.size() - 1).y));*/
+                /*Graphics2D rectangle = modifiedPic.createGraphics();
+                Rectangle rect = new Rectangle(listOfDiffPixels.get(0));
+                System.out.println(listOfDiffPixels.get(listOfDiffPixels.size()-1));
+                rect.add(listOfDiffPixels.get(listOfDiffPixels.size()-1));
+                rectangle.setColor(Color.RED);
+                rectangle.drawRect(rect.x,rect.y,rect.width,rect.height);*/
+
+                ImageIO.write(modifiedPic, "png", new File("/home/vig/ProgDocs/PicsProg/imageDifferences.png"));
+
+            }else{
+                System.out.println("Images have different sizes");
+            }
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+        }
